@@ -1,0 +1,27 @@
+{
+  "name": "example-plugin",
+  "version": "0.1.0",
+  "description": "A minimal example plugin for the YFGE Codex plugin marketplace.",
+  "author": {
+    "name": "YFGE",
+    "url": "https://github.com/yfge"
+  },
+  "homepage": "https://github.com/yfge/codex-plugins/tree/main/plugins/example-plugin",
+  "repository": "https://github.com/yfge/codex-plugins",
+  "license": "MIT",
+  "keywords": ["codex", "plugin", "example"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Example Plugin",
+    "shortDescription": "Minimal sample plugin for marketplace authors.",
+    "longDescription": "A small plugin that demonstrates the required Codex plugin structure, manifest metadata, and bundled skill layout for this marketplace.",
+    "developerName": "YFGE",
+    "category": "Productivity",
+    "capabilities": ["Instructions"],
+    "websiteURL": "https://github.com/yfge/codex-plugins",
+    "defaultPrompt": [
+      "Use the example plugin to show the expected response format."
+    ],
+    "brandColor": "#10A37F"
+  }
+}
