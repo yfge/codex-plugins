@@ -14,7 +14,7 @@
 
 - `.agents/plugins/marketplace.json`: public Codex marketplace catalog; can start with an empty `plugins` array.
 - `scripts/validate-marketplace.mjs`: validates index entry shape and Git source metadata without fetching external repositories.
-- `scripts/validate-marketplace.test.mjs`: Node test coverage for empty indexes, external root plugins, external subdirectory plugins, and unsafe paths.
+- `scripts/validate-marketplace.test.mjs`: Node test coverage for indexed external repositories, external root plugins, external subdirectory plugins, and unsafe paths.
 - `README.md`: user-facing install and browse guide.
 - `CONTRIBUTING.md`: contributor workflow for submitting external plugin repository entries.
 
@@ -53,7 +53,7 @@ Delete the local example plugin files so this repository is clearly an index, no
 
 Add tests proving that:
 
-- the repository marketplace validates with zero indexed plugins
+- the repository marketplace validates its indexed external plugin entries
 - a `git-subdir` entry pointing at an external GitHub repo validates without local plugin files
 - a `url` entry pointing at an external GitHub repo root validates without local plugin files
 - unsafe `git-subdir` paths are rejected
@@ -110,7 +110,7 @@ Expected: 4 tests pass.
 npm run validate
 ```
 
-Expected: `Marketplace validation passed: 0 plugins checked.`
+Expected: `Marketplace validation passed: 1 plugin checked.`
 
 - [ ] **Step 3: Commit and push**
 

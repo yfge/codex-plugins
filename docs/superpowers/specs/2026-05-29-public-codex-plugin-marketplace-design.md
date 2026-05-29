@@ -151,12 +151,12 @@ Validation should be the main automated test for v1. Manual verification should 
 3. Restart Codex if needed.
 4. Open `/plugins`.
 5. Confirm the marketplace appears.
-6. Confirm the marketplace appears even when no plugins are indexed yet.
+6. Confirm the marketplace appears and indexed external plugins can be inspected.
 
 ## Success Criteria
 
 - A fresh clone contains a valid `.agents/plugins/marketplace.json`.
-- Empty index startup validates.
+- Empty index startup validates, and external repository entries validate once indexed.
 - Users can add the repository as a Codex marketplace with a Git URL.
 - Contributors have enough documentation to submit an external plugin repository entry without reverse-engineering the format.
 - Validation catches broken entries before they are merged.

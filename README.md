@@ -48,7 +48,7 @@ codex plugin marketplace remove yfge-codex-plugins
 
 | Plugin | Category | Description |
 | --- | --- | --- |
-| None yet | - | This index is ready for external plugin repository submissions. |
+| `agent-harness-skills` | Coding | Reusable skills for building agent-ready repository harnesses. |
 
 ## Validate
 
