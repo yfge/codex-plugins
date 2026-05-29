@@ -2,7 +2,7 @@
 
 ## Goal
 
-Build this repository as a public, open-source, Git-backed Codex plugin marketplace. Users should be able to add the marketplace with a Git URL, then browse and install plugins from Codex with `/plugins`.
+Build this repository as a public, open-source, Git-backed Codex plugin marketplace index. Users should be able to add the marketplace with a Git URL, then browse and install plugins from Codex with `/plugins`.
 
 ## Scope
 
@@ -18,16 +18,10 @@ The repository should also be friendly to open-source contributors who want to s
 
 ## Repository Structure
 
-The repository root contains the marketplace catalog, plugin bundles, docs, and validation tooling:
+The repository root contains the marketplace catalog, docs, and validation tooling:
 
 ```text
 .agents/plugins/marketplace.json
-plugins/
-  example-plugin/
-    .codex-plugin/plugin.json
-    skills/
-      example/
-        SKILL.md
 README.md
 CONTRIBUTING.md
 LICENSE
@@ -36,20 +30,20 @@ scripts/
   validate-marketplace.mjs
 ```
 
-The first plugin can be a minimal example plugin so the marketplace validates end to end and contributors have a concrete template to copy.
+Plugin source code lives in external public GitHub repositories. This repository stores the index entries only.
 
 ## Marketplace Format
 
 `.agents/plugins/marketplace.json` is the public catalog Codex reads. It uses a stable marketplace name and display name, then lists one object per plugin under `plugins`.
 
-Entries should use Git-backed `git-subdir` sources so the marketplace works after users add the public Git repository:
+Entries can use Git-backed `git-subdir` sources when the plugin lives in a subdirectory:
 
 ```json
 {
   "name": "example-plugin",
   "source": {
     "source": "git-subdir",
-    "url": "https://github.com/yfge/codex-plugins.git",
+    "url": "https://github.com/example/example-plugin.git",
     "path": "./plugins/example-plugin",
     "ref": "main"
   },
@@ -61,11 +55,29 @@ Entries should use Git-backed `git-subdir` sources so the marketplace works afte
 }
 ```
 
-All plugin source paths must live under `./plugins/<plugin-name>`. The repository should not rely on a plugin living at the repository root because current Codex marketplace validation expects a non-empty local source path.
+Entries can use `url` sources when the plugin lives at the external repository root:
+
+```json
+{
+  "name": "example-plugin",
+  "source": {
+    "source": "url",
+    "url": "https://github.com/example/example-plugin.git",
+    "ref": "main"
+  },
+  "policy": {
+    "installation": "AVAILABLE",
+    "authentication": "ON_INSTALL"
+  },
+  "category": "Productivity"
+}
+```
+
+For `git-subdir`, `source.path` must be a `./`-prefixed path that stays inside the referenced external repository. For `url`, omit `source.path`.
 
 ## Plugin Requirements
 
-Each plugin must include `.codex-plugin/plugin.json` at the plugin root. Public plugins should include enough metadata for users to understand what they are installing:
+Each external plugin must include `.codex-plugin/plugin.json` at the plugin root. Public plugins should include enough metadata for users to understand what they are installing:
 
 - `name`
 - `version`
@@ -81,7 +93,7 @@ Each plugin must include `.codex-plugin/plugin.json` at the plugin root. Public 
 - `interface.category`
 - `interface.capabilities`
 
-The `name` in the marketplace entry must match the plugin manifest `name`. Manifest paths must be `./`-prefixed, relative to the plugin root, and stay inside the plugin directory.
+The `name` in the marketplace entry must match the external plugin manifest `name`. Manifest paths must be `./`-prefixed, relative to the plugin root, and stay inside the plugin directory.
 
 ## Documentation
 
@@ -92,13 +104,13 @@ The `name` in the marketplace entry must match the plugin manifest `name`. Manif
 - how to browse and install plugins with `/plugins`
 - how to update the marketplace with `codex plugin marketplace upgrade`
 - how to remove it with `codex plugin marketplace remove`
-- the current plugin list
+- the current indexed plugin list
 
 `CONTRIBUTING.md` is author-facing. It should explain:
 
-- plugin directory layout
+- external plugin repository layout
 - manifest metadata requirements
-- how to add a marketplace entry
+- how to add an external marketplace entry
 - how to run validation
 - review expectations for open-source submissions
 
@@ -109,15 +121,12 @@ The repository should include a local validation script that fails fast when the
 - `.agents/plugins/marketplace.json` exists and parses as JSON
 - top-level marketplace `name`, `interface.displayName`, and `plugins[]` exist
 - each plugin entry has `name`, `source`, `policy`, and `category`
-- each source is `git-subdir`
-- each source `path` starts with `./plugins/`
-- each source `url` points at `https://github.com/yfge/codex-plugins.git` unless the repository owner intentionally changes the canonical public URL before release
-- each source `ref` exists as a non-empty string
-- each referenced plugin directory exists
-- each referenced plugin has `.codex-plugin/plugin.json`
-- plugin manifest `name` matches the marketplace entry `name`
-- plugin manifest has public metadata required by this spec
-- any manifest path fields point inside the plugin directory
+- each source is `git-subdir` or `url`
+- each source `url` is a GitHub HTTPS or SSH URL
+- each source has `ref` or `sha`
+- `git-subdir` entries have a safe `./`-prefixed source `path`
+- `url` entries omit source `path`
+- duplicate plugin ids are rejected
 
 The script should be runnable with:
 
@@ -142,12 +151,12 @@ Validation should be the main automated test for v1. Manual verification should 
 3. Restart Codex if needed.
 4. Open `/plugins`.
 5. Confirm the marketplace appears.
-6. Confirm the example plugin appears and can be inspected.
+6. Confirm the marketplace appears even when no plugins are indexed yet.
 
 ## Success Criteria
 
 - A fresh clone contains a valid `.agents/plugins/marketplace.json`.
-- At least one example plugin validates.
+- Empty index startup validates.
 - Users can add the repository as a Codex marketplace with a Git URL.
-- Contributors have enough documentation to submit a plugin without reverse-engineering the format.
+- Contributors have enough documentation to submit an external plugin repository entry without reverse-engineering the format.
 - Validation catches broken entries before they are merged.

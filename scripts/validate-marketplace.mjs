@@ -1,32 +1,16 @@
-import { access, readFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const MARKETPLACE_PATH = ".agents/plugins/marketplace.json";
-const CANONICAL_REPO_URL = "https://github.com/yfge/codex-plugins.git";
 
+const SOURCE_TYPES = new Set(["git-subdir", "url"]);
 const INSTALLATION_POLICIES = new Set([
   "NOT_AVAILABLE",
   "AVAILABLE",
   "INSTALLED_BY_DEFAULT"
 ]);
 const AUTHENTICATION_POLICIES = new Set(["ON_INSTALL", "ON_USE"]);
-
-const REQUIRED_MANIFEST_FIELDS = [
-  "name",
-  "version",
-  "description",
-  "repository",
-  "license"
-];
-const REQUIRED_INTERFACE_FIELDS = [
-  "displayName",
-  "shortDescription",
-  "longDescription",
-  "developerName",
-  "category"
-];
-const MANIFEST_PATH_FIELDS = ["skills", "mcpServers", "apps", "hooks"];
 
 function isObject(value) {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -44,17 +28,7 @@ function assertString(value, label) {
   }
 }
 
-function assertStringArray(value, label) {
-  if (!Array.isArray(value) || value.length === 0) {
-    throw new Error(`${label} must be a non-empty string array`);
-  }
-
-  for (const [index, item] of value.entries()) {
-    assertString(item, `${label}[${index}]`);
-  }
-}
-
-function validateRelativePluginPath(pluginName, value, label) {
+function validateRelativeSourcePath(value, label) {
   assertString(value, label);
 
   if (!value.startsWith("./")) {
@@ -74,11 +48,35 @@ function validateRelativePluginPath(pluginName, value, label) {
     }
 
     if (part === "" || part === "." || part === "..") {
-      throw new Error(`${label} must stay inside ${pluginName}`);
+      throw new Error(`${label} must stay inside the source repository`);
     }
   }
 
   return withoutPrefix.endsWith("/") ? withoutPrefix.slice(0, -1) : withoutPrefix;
+}
+
+function validateGitUrl(value, label) {
+  assertString(value, label);
+
+  const isHttpsGitHubUrl =
+    /^https:\/\/github\.com\/[^/\s]+\/[^/\s]+(?:\.git)?$/.test(value);
+  const isSshGitHubUrl =
+    /^git@github\.com:[^/\s]+\/[^/\s]+(?:\.git)?$/.test(value);
+
+  if (!isHttpsGitHubUrl && !isSshGitHubUrl) {
+    throw new Error(
+      `${label} must be a GitHub HTTPS URL or SSH URL for a public repository`
+    );
+  }
+}
+
+function validateSourceSelector(source, pluginName) {
+  const hasRef = typeof source.ref === "string" && source.ref.trim() !== "";
+  const hasSha = typeof source.sha === "string" && source.sha.trim() !== "";
+
+  if (!hasRef && !hasSha) {
+    throw new Error(`${pluginName}: source.ref or source.sha is required`);
+  }
 }
 
 async function readJson(filePath, label) {
@@ -96,15 +94,6 @@ async function readJson(filePath, label) {
   }
 }
 
-async function pathExists(filePath) {
-  try {
-    await access(filePath);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 function validateMarketplaceEntry(entry) {
   assertObject(entry, "plugin entry");
   assertString(entry.name, "plugin entry name");
@@ -112,27 +101,22 @@ function validateMarketplaceEntry(entry) {
   assertObject(entry.source, `${entry.name}: source`);
   assertObject(entry.policy, `${entry.name}: policy`);
 
-  if (entry.source.source !== "git-subdir") {
-    throw new Error(`${entry.name}: source.source must be git-subdir`);
+  if (!SOURCE_TYPES.has(entry.source.source)) {
+    throw new Error(`${entry.name}: source.source must be git-subdir or url`);
   }
 
-  if (entry.source.url !== CANONICAL_REPO_URL) {
-    throw new Error(`${entry.name}: source.url must be ${CANONICAL_REPO_URL}`);
+  validateGitUrl(entry.source.url, `${entry.name}: source.url`);
+  validateSourceSelector(entry.source, entry.name);
+
+  if (entry.source.source === "git-subdir") {
+    validateRelativeSourcePath(entry.source.path, `${entry.name}: source.path`);
   }
 
-  assertString(entry.source.path, `${entry.name}: source.path`);
-  if (!entry.source.path.startsWith("./plugins/")) {
-    throw new Error(`${entry.name}: source.path must start with ./plugins/`);
-  }
-
-  if (entry.source.path !== `./plugins/${entry.name}`) {
+  if (entry.source.source === "url" && entry.source.path !== undefined) {
     throw new Error(
-      `${entry.name}: source.path must be ./plugins/${entry.name}`
+      `${entry.name}: source.path must be omitted when source.source is url`
     );
   }
-
-  validateRelativePluginPath(entry.name, entry.source.path, `${entry.name}: source.path`);
-  assertString(entry.source.ref, `${entry.name}: source.ref`);
 
   if (!INSTALLATION_POLICIES.has(entry.policy.installation)) {
     throw new Error(
@@ -151,99 +135,6 @@ function validateMarketplaceEntry(entry) {
   }
 }
 
-function validateManifestPathValue(pluginName, pluginRoot, value, label) {
-  const relative = validateRelativePluginPath(pluginName, value, label);
-  const absolute = path.resolve(pluginRoot, relative);
-
-  if (!absolute.startsWith(`${pluginRoot}${path.sep}`) && absolute !== pluginRoot) {
-    throw new Error(`${label} must stay inside ${pluginName}`);
-  }
-
-  return absolute;
-}
-
-async function validateManifestPaths(pluginName, pluginRoot, manifest) {
-  for (const field of MANIFEST_PATH_FIELDS) {
-    const value = manifest[field];
-    if (value === undefined) {
-      continue;
-    }
-
-    if (Array.isArray(value)) {
-      for (const [index, item] of value.entries()) {
-        const absolute = validateManifestPathValue(
-          pluginName,
-          pluginRoot,
-          item,
-          `${pluginName}: ${field}[${index}]`
-        );
-        if (!(await pathExists(absolute))) {
-          throw new Error(`${pluginName}: ${field}[${index}] does not exist`);
-        }
-      }
-      continue;
-    }
-
-    if (typeof value !== "string") {
-      throw new Error(`${pluginName}: ${field} must be a string or string array`);
-    }
-
-    const absolute = validateManifestPathValue(
-      pluginName,
-      pluginRoot,
-      value,
-      `${pluginName}: ${field}`
-    );
-    if (!(await pathExists(absolute))) {
-      throw new Error(`${pluginName}: ${field} does not exist`);
-    }
-  }
-}
-
-async function validatePluginManifest(rootDir, entry) {
-  const pluginRoot = path.resolve(rootDir, entry.source.path.slice(2));
-  const manifestPath = path.join(pluginRoot, ".codex-plugin/plugin.json");
-
-  if (!(await pathExists(pluginRoot))) {
-    throw new Error(`${entry.name}: plugin directory does not exist`);
-  }
-
-  const manifest = await readJson(manifestPath, `${entry.name}: plugin manifest`);
-  assertObject(manifest, `${entry.name}: plugin manifest`);
-
-  for (const field of REQUIRED_MANIFEST_FIELDS) {
-    assertString(manifest[field], `${entry.name}: manifest.${field}`);
-  }
-
-  if (manifest.name !== entry.name) {
-    throw new Error(
-      `${entry.name}: manifest.name must match marketplace entry name`
-    );
-  }
-
-  if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/.test(manifest.version)) {
-    throw new Error(`${entry.name}: manifest.version must be valid semver`);
-  }
-
-  assertObject(manifest.author, `${entry.name}: manifest.author`);
-  assertString(manifest.author.name, `${entry.name}: manifest.author.name`);
-  assertStringArray(manifest.keywords, `${entry.name}: manifest.keywords`);
-
-  assertObject(manifest.interface, `${entry.name}: manifest.interface`);
-  for (const field of REQUIRED_INTERFACE_FIELDS) {
-    assertString(
-      manifest.interface[field],
-      `${entry.name}: manifest.interface.${field}`
-    );
-  }
-  assertStringArray(
-    manifest.interface.capabilities,
-    `${entry.name}: manifest.interface.capabilities`
-  );
-
-  await validateManifestPaths(entry.name, pluginRoot, manifest);
-}
-
 export async function validateMarketplace(rootDir = process.cwd()) {
   const marketplacePath = path.join(rootDir, MARKETPLACE_PATH);
   const marketplace = await readJson(marketplacePath, "marketplace");
@@ -253,8 +144,8 @@ export async function validateMarketplace(rootDir = process.cwd()) {
   assertObject(marketplace.interface, "marketplace.interface");
   assertString(marketplace.interface.displayName, "marketplace.interface.displayName");
 
-  if (!Array.isArray(marketplace.plugins) || marketplace.plugins.length === 0) {
-    throw new Error("marketplace.plugins must be a non-empty array");
+  if (!Array.isArray(marketplace.plugins)) {
+    throw new Error("marketplace.plugins must be an array");
   }
 
   const pluginNames = [];
@@ -266,7 +157,6 @@ export async function validateMarketplace(rootDir = process.cwd()) {
     }
     seen.add(entry.name);
 
-    await validatePluginManifest(rootDir, entry);
     pluginNames.push(entry.name);
   }
 

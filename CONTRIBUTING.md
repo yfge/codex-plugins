@@ -1,13 +1,13 @@
 # Contributing
 
-This marketplace accepts open-source Codex plugins that can be distributed from this repository through the official Codex marketplace format.
+This marketplace accepts open-source Codex plugins by indexing their public GitHub repositories. Plugin source code should stay in the plugin author's repository; this repository stores only the marketplace catalog entry.
 
-## Plugin Layout
+## Plugin Repository Layout
 
-Add one plugin per directory:
+Your external plugin repository must contain a Codex plugin manifest at the plugin root or at the subdirectory referenced by the marketplace entry:
 
 ```text
-plugins/<plugin-name>/
+<plugin-root>/
   .codex-plugin/
     plugin.json
   skills/
@@ -30,8 +30,8 @@ Each plugin manifest must include:
     "name": "Your name or team",
     "url": "https://github.com/your-org"
   },
-  "homepage": "https://github.com/yfge/codex-plugins/tree/main/plugins/your-plugin",
-  "repository": "https://github.com/yfge/codex-plugins",
+  "homepage": "https://github.com/your-org/your-plugin",
+  "repository": "https://github.com/your-org/your-plugin",
   "license": "MIT",
   "keywords": ["codex", "plugin"],
   "skills": "./skills/",
@@ -42,7 +42,7 @@ Each plugin manifest must include:
     "developerName": "Your name or team",
     "category": "Productivity",
     "capabilities": ["Instructions"],
-    "websiteURL": "https://github.com/yfge/codex-plugins"
+    "websiteURL": "https://github.com/your-org/your-plugin"
   }
 }
 ```
@@ -51,14 +51,14 @@ Use strict semver for `version`. Manifest path fields such as `skills`, `mcpServ
 
 ## Marketplace Entry
 
-Add a matching entry to `.agents/plugins/marketplace.json`:
+Add one matching entry to `.agents/plugins/marketplace.json`. Use `git-subdir` when the plugin lives below the repository root:
 
 ```json
 {
   "name": "your-plugin",
   "source": {
     "source": "git-subdir",
-    "url": "https://github.com/yfge/codex-plugins.git",
+    "url": "https://github.com/your-org/your-plugin.git",
     "path": "./plugins/your-plugin",
     "ref": "main"
   },
@@ -70,7 +70,25 @@ Add a matching entry to `.agents/plugins/marketplace.json`:
 }
 ```
 
-The marketplace `name`, `source.path`, plugin directory name, and manifest `name` must all use the same kebab-case plugin id.
+Use `url` when the plugin manifest lives at the external repository root:
+
+```json
+{
+  "name": "your-plugin",
+  "source": {
+    "source": "url",
+    "url": "https://github.com/your-org/your-plugin.git",
+    "ref": "main"
+  },
+  "policy": {
+    "installation": "AVAILABLE",
+    "authentication": "ON_INSTALL"
+  },
+  "category": "Productivity"
+}
+```
+
+The marketplace `name` and plugin manifest `name` must use the same kebab-case plugin id. Use HTTPS GitHub URLs for public installability. Include either `ref` or `sha`; `sha` is preferred for reproducible entries after review.
 
 ## Validation
 
@@ -81,10 +99,10 @@ npm test
 npm run validate
 ```
 
-Validation must pass before a pull request is reviewed.
+Validation must pass before a pull request is reviewed. The validator checks the index entry shape and does not fetch external repositories.
 
 ## Review Expectations
 
-Submissions should be small, auditable, and useful without private services unless the plugin clearly documents its dependency. Keep bundled scripts minimal and explain any network, filesystem, or authentication behavior in the plugin description.
+Submissions should be small, auditable, and useful without private services unless the plugin clearly documents its dependency. Explain any network, filesystem, or authentication behavior in the external plugin README and manifest.
 
-Do not submit secrets, credentials, private endpoints, generated dependency folders, or unrelated repository changes.
+Do not submit secrets, credentials, private endpoints, generated dependency folders, vendored plugin code, or unrelated repository changes.

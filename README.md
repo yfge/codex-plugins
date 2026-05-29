@@ -1,6 +1,6 @@
 # YFGE Codex Plugins
 
-Public Git-backed marketplace for OpenAI Codex plugins.
+Public Git-backed index marketplace for OpenAI Codex plugins.
 
 This repository follows the Codex plugin marketplace format. It is not affiliated with OpenAI.
 
@@ -48,7 +48,7 @@ codex plugin marketplace remove yfge-codex-plugins
 
 | Plugin | Category | Description |
 | --- | --- | --- |
-| `example-plugin` | Productivity | Minimal sample plugin for marketplace authors. |
+| None yet | - | This index is ready for external plugin repository submissions. |
 
 ## Validate
 
@@ -59,11 +59,48 @@ npm test
 npm run validate
 ```
 
-The validator checks the marketplace catalog, plugin source paths, plugin manifests, required public metadata, and manifest path boundaries.
+The validator checks the marketplace catalog, external Git source descriptors, source paths, install policies, and duplicate plugin ids.
 
 ## Add A Plugin
 
-Create a new directory under `plugins/<plugin-name>/`, add `.codex-plugin/plugin.json`, bundle any skills or integrations, then add a matching entry to `.agents/plugins/marketplace.json`.
+Keep plugin source code in its own public GitHub repository. Add only an index entry to `.agents/plugins/marketplace.json`.
+
+If the plugin lives in a subdirectory:
+
+```json
+{
+  "name": "your-plugin",
+  "source": {
+    "source": "git-subdir",
+    "url": "https://github.com/your-org/your-plugin.git",
+    "path": "./plugins/your-plugin",
+    "ref": "main"
+  },
+  "policy": {
+    "installation": "AVAILABLE",
+    "authentication": "ON_INSTALL"
+  },
+  "category": "Productivity"
+}
+```
+
+If the plugin lives at the repository root:
+
+```json
+{
+  "name": "your-plugin",
+  "source": {
+    "source": "url",
+    "url": "https://github.com/your-org/your-plugin.git",
+    "ref": "main"
+  },
+  "policy": {
+    "installation": "AVAILABLE",
+    "authentication": "ON_INSTALL"
+  },
+  "category": "Productivity"
+}
+```
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for the required layout and review checklist.
 

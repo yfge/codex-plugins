@@ -2,7 +2,7 @@
   "name": "codex-plugins",
   "version": "0.1.0",
   "private": true,
-  "description": "Public Git-backed marketplace for OpenAI Codex plugins.",
+  "description": "Public Git-backed index marketplace for OpenAI Codex plugins.",
   "type": "module",
   "scripts": {
     "test": "node --test scripts/validate-marketplace.test.mjs",
