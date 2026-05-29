@@ -30,7 +30,7 @@ scripts/
   validate-marketplace.mjs
 ```
 
-Plugin source code lives in external public GitHub repositories. This repository stores the index entries only.
+Plugin source code usually lives in external public GitHub repositories. This repository can also host first-party plugins under `plugins/<plugin-name>/` when YFGE maintains the implementation alongside the marketplace. In both cases, `.agents/plugins/marketplace.json` stores the installable index entry.
 
 ## Marketplace Format
 
@@ -73,7 +73,7 @@ Entries can use `url` sources when the plugin lives at the external repository r
 }
 ```
 
-For `git-subdir`, `source.path` must be a `./`-prefixed path that stays inside the referenced external repository. For `url`, omit `source.path`.
+For `git-subdir`, `source.path` must be a `./`-prefixed path that stays inside the referenced repository. For `url`, omit `source.path`.
 
 ## Plugin Requirements
 

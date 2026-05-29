@@ -1,0 +1,45 @@
+{
+  "name": "feishu",
+  "version": "0.1.0",
+  "description": "Feishu and Lark workspace tools for docs, notifications, Bitable records, and Wiki knowledge bases.",
+  "author": {
+    "name": "YFGE",
+    "url": "https://github.com/yfge"
+  },
+  "homepage": "https://github.com/yfge/codex-plugins/tree/main/plugins/feishu",
+  "repository": "https://github.com/yfge/codex-plugins",
+  "license": "MIT",
+  "keywords": [
+    "feishu",
+    "lark",
+    "docs",
+    "notifications",
+    "bitable",
+    "wiki",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Feishu",
+    "shortDescription": "Operate Feishu docs, messages, Bitable, and Wiki from Codex.",
+    "longDescription": "Use Feishu from Codex through an MCP server that can create and read cloud documents, send app or webhook notifications, search and mutate Bitable records, and browse or search Wiki knowledge bases. Configure it with Feishu app credentials, a tenant or user access token, or a custom bot webhook depending on the workflow.",
+    "developerName": "YFGE",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/yfge/codex-plugins/tree/main/plugins/feishu",
+    "defaultPrompt": [
+      "Send a Feishu notification and update a Bitable record.",
+      "Create a Feishu doc and append a short summary.",
+      "Search our Feishu Wiki for deployment notes."
+    ],
+    "brandColor": "#3370FF",
+    "composerIcon": "./assets/feishu.svg",
+    "logo": "./assets/feishu.svg",
+    "screenshots": []
+  }
+}

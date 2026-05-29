@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Maintain this repository as a public Codex plugin marketplace index whose entries point at external open-source plugin repositories.
+**Goal:** Maintain this repository as a public Codex plugin marketplace index whose entries point at external open-source plugin repositories or first-party plugin subdirectories maintained in this repository.
 
-**Architecture:** `.agents/plugins/marketplace.json` is the catalog. Each plugin entry points at an external GitHub repository with either `source: "url"` for repository-root plugins or `source: "git-subdir"` for subdirectory plugins. This repo does not vendor plugin source code.
+**Architecture:** `.agents/plugins/marketplace.json` is the catalog. Each plugin entry points at a GitHub repository with either `source: "url"` for repository-root plugins or `source: "git-subdir"` for subdirectory plugins. First-party plugins can live under `plugins/<plugin-name>/`; contributor plugins should usually stay in their own repositories.
 
 **Tech Stack:** Codex plugin marketplace JSON, Node.js ESM validation script, npm scripts, Markdown documentation.
 

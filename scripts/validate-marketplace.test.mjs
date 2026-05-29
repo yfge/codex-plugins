@@ -9,8 +9,8 @@ import { validateMarketplace } from "./validate-marketplace.mjs";
 test("validates the repository marketplace", async () => {
   const result = await validateMarketplace(process.cwd());
 
-  assert.equal(result.pluginCount, 1);
-  assert.deepEqual(result.pluginNames, ["agent-harness-skills"]);
+  assert.equal(result.pluginCount, 2);
+  assert.deepEqual(result.pluginNames, ["agent-harness-skills", "feishu"]);
 });
 
 test("validates an external git-subdir plugin entry without local plugin files", async () => {

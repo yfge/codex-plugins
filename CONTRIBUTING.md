@@ -1,10 +1,10 @@
 # Contributing
 
-This marketplace accepts open-source Codex plugins by indexing their public GitHub repositories. Plugin source code should stay in the plugin author's repository; this repository stores only the marketplace catalog entry.
+This marketplace accepts open-source Codex plugins by indexing public GitHub repositories. Plugin source code should usually stay in the plugin author's repository; this repository stores the marketplace catalog entry. First-party plugins maintained by YFGE may live under `plugins/<plugin-name>/` and be indexed from this repository with a `git-subdir` source.
 
 ## Plugin Repository Layout
 
-Your external plugin repository must contain a Codex plugin manifest at the plugin root or at the subdirectory referenced by the marketplace entry:
+Your external plugin repository, or first-party plugin subdirectory in this repository, must contain a Codex plugin manifest at the plugin root or at the subdirectory referenced by the marketplace entry:
 
 ```text
 <plugin-root>/

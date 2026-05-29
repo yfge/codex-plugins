@@ -49,6 +49,7 @@ codex plugin marketplace remove yfge-codex-plugins
 | Plugin | Category | Description |
 | --- | --- | --- |
 | `agent-harness-skills` | Coding | Reusable skills for building agent-ready repository harnesses. |
+| `feishu` | Productivity | Feishu/Lark tools for docs, notifications, Bitable, and Wiki knowledge bases. |
 
 ## Validate
 
@@ -63,7 +64,7 @@ The validator checks the marketplace catalog, external Git source descriptors, s
 
 ## Add A Plugin
 
-Keep plugin source code in its own public GitHub repository. Add only an index entry to `.agents/plugins/marketplace.json`.
+Prefer keeping plugin source code in its own public GitHub repository and adding only an index entry to `.agents/plugins/marketplace.json`. First-party plugins maintained with this marketplace may also live under `plugins/<plugin-name>/` and be indexed with a `git-subdir` entry pointing at this repository.
 
 If the plugin lives in a subdirectory:
 
@@ -73,6 +74,25 @@ If the plugin lives in a subdirectory:
   "source": {
     "source": "git-subdir",
     "url": "https://github.com/your-org/your-plugin.git",
+    "path": "./plugins/your-plugin",
+    "ref": "main"
+  },
+  "policy": {
+    "installation": "AVAILABLE",
+    "authentication": "ON_INSTALL"
+  },
+  "category": "Productivity"
+}
+```
+
+For a first-party plugin hosted in this repository:
+
+```json
+{
+  "name": "your-plugin",
+  "source": {
+    "source": "git-subdir",
+    "url": "https://github.com/yfge/codex-plugins.git",
     "path": "./plugins/your-plugin",
     "ref": "main"
   },
