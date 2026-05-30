@@ -1,0 +1,21 @@
+{
+  "name": "yfge-codex-plugins",
+  "owner": {
+    "name": "YFGE"
+  },
+  "metadata": {
+    "description": "Open-source agent plugin marketplace maintained by YFGE for Codex, Claude Code, Cursor, and OpenCode."
+  },
+  "plugins": [
+    {
+      "name": "agent-harness-skills",
+      "source": "https://github.com/yfge/agent-harness-skills.git",
+      "description": "Reusable skills for building agent-ready repository harnesses."
+    },
+    {
+      "name": "feishu",
+      "source": "./plugins/feishu",
+      "description": "Feishu and Lark workspace tools for docs, notifications, Bitable records, and Wiki knowledge bases."
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "yfge-codex-plugins",
+  "version": "0.1.0",
+  "description": "Open-source agent plugin marketplace maintained by YFGE for Codex, Claude Code, Cursor, and OpenCode.",
+  "owner": {
+    "name": "YFGE"
+  },
+  "plugins": [
+    {
+      "name": "agent-harness-skills",
+      "description": "Reusable skills for building agent-ready repository harnesses.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Agent Harness Skills contributors"
+      },
+      "category": "development",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/yfge/agent-harness-skills.git",
+        "sha": "ed8f9d4243c3fdf9e1f23217334f69648b86e666"
+      },
+      "homepage": "https://github.com/yfge/agent-harness-skills"
+    },
+    {
+      "name": "feishu",
+      "description": "Feishu and Lark workspace tools for docs, notifications, Bitable records, and Wiki knowledge bases.",
+      "version": "0.1.0",
+      "author": {
+        "name": "YFGE",
+        "url": "https://github.com/yfge"
+      },
+      "category": "productivity",
+      "source": "./plugins/feishu",
+      "homepage": "https://github.com/yfge/codex-plugins/tree/main/plugins/feishu"
+    }
+  ]
+}

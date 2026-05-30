@@ -1,0 +1,24 @@
+{
+  "name": "feishu",
+  "displayName": "Feishu",
+  "version": "0.1.0",
+  "description": "Feishu and Lark workspace tools for docs, notifications, Bitable records, and Wiki knowledge bases.",
+  "author": {
+    "name": "YFGE",
+    "url": "https://github.com/yfge"
+  },
+  "homepage": "https://github.com/yfge/codex-plugins/tree/main/plugins/feishu",
+  "repository": "https://github.com/yfge/codex-plugins",
+  "license": "MIT",
+  "keywords": [
+    "feishu",
+    "lark",
+    "docs",
+    "notifications",
+    "bitable",
+    "wiki",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
+}
